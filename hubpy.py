@@ -51,10 +51,10 @@ def create(repository_name, username, password):
             username = click.prompt("Github username")
             click.echo("To set the ")
     password = click.prompt("Github password for %s" % username, hide_input=True)
-    gh = Github(username, password)
-    user = gh.get_user()
-    remote_repo = user.create_repo(reponame)
-    remote_url = 'https://github.com/' + user.login + '/' + reponame + '.git'
+    gh = Github(username, password) # Set up Github object
+    user = gh.get_user() # Get a user object
+    remote_repo = user.create_repo(reponame) # Create the repository
+    remote_url = 'https://github.com/' + user.login + '/' + reponame + '.git' # Set the url to add the remote
     try:
         os.system('git remote add origin %s' % remote_url)
     except OSError as e:
