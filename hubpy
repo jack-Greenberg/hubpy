@@ -30,7 +30,8 @@ def init(username):
 @hubpy.command('create', short_help="Create the Github repo")
 @click.option('-n', '--repository_name', help="Name for repository")
 @click.option('-u', '--username', help="Github username")
-def create(repository_name, username):
+@click.option('-p', '--private', help="Make private", is_flag=True)
+def create(repository_name, username, private):
     """Create a Github repository for the current project"""
     # If there is no git repository, throw an error
     if not os.path.exists(os.getcwd() + '/.git'):
@@ -39,6 +40,29 @@ def create(repository_name, username):
     # If no repository name is provided in the command
     if not repository_name:
         reponame = click.prompt("Repository name")
+    else:
+        reponame = repository_name
+
+    if not private:
+        private_bool = None
+        while (private_bool == None):
+            click.echo("Should this be a private repository?")
+            click.echo("------------------------------------------")
+            click.echo("1: Private")
+            click.echo("2: Public")
+            click.echo("------------------------------------------")
+            click.echo("Enter a number:")
+            private_char = click.getchar()
+            if (private_char == '1'):
+                private_bool = True
+                break
+            elif (private_char == '2'):
+                private_bool = False
+                break
+            else:
+                private_bool = None
+                click.echo("Please pick either 1 (private) or 2 (public)")
+
 
     # If no username is provided in the command
     if not username:
@@ -49,16 +73,16 @@ def create(repository_name, username):
         # Or else just prompt the user
         else:
             username = click.prompt("Github username")
-            click.echo("To set the ")
     password = click.prompt("Github password for %s" % username, hide_input=True)
     gh = Github(username, password) # Set up Github object
     user = gh.get_user() # Get a user object
-    remote_repo = user.create_repo(reponame) # Create the repository
+    remote_repo = user.create_repo(reponame, private=private_bool) # Create the repository
     remote_url = 'https://github.com/' + user.login + '/' + reponame + '.git' # Set the url to add the remote
     try:
         os.system('git remote add origin %s' % remote_url)
     except OSError as e:
         print(e)
+    click.secho("Github repository successfully created.", fg='green')
 
 if __name__ == '__main__':
     hubpy()
